@@ -9,6 +9,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import nl.hetcak.cronacle.MainApp;
+import nl.hetcak.cronacle.model.ShortNameFile;
 
 import java.io.File;
 
@@ -21,7 +22,7 @@ public class FileSelectorController {
     private Label rootLocation;
 
     @FXML
-    private TreeView<File> treeView = new TreeView<>();
+    private TreeView<ShortNameFile> treeView = new TreeView<>();
 
     private MainApp mainApp;
 
@@ -32,7 +33,8 @@ public class FileSelectorController {
 
 
     private TreeView buildFileSystemBrowser(String rootDirectory) {
-        CheckBoxTreeItem<File> root = createNode(new File(rootDirectory));
+        CheckBoxTreeItem<ShortNameFile> root = createNode(new ShortNameFile(new File(rootDirectory)));
+
         treeView.setRoot(root);
         return treeView;
     }
@@ -42,8 +44,8 @@ public class FileSelectorController {
     // anonymously, but this could be better abstracted by creating a
     // 'FileTreeItem' subclass of TreeItem. However, this is left as an exercise
     // for the reader.
-    private CheckBoxTreeItem<File> createNode(final File f) {
-        return new CheckBoxTreeItem<File>(f) {
+    private CheckBoxTreeItem<ShortNameFile> createNode(final ShortNameFile f) {
+        return new CheckBoxTreeItem<ShortNameFile>(f) {
             // We cache whether the File is a leaf or not. A File is a leaf if
             // it is not a directory and does not have any files contained within
             // it. We cache this as isLeaf() is called often, and doing the
@@ -59,7 +61,7 @@ public class FileSelectorController {
             private boolean isFirstTimeChildren = true;
             private boolean isFirstTimeLeaf = true;
 
-            @Override public ObservableList<TreeItem<File>> getChildren() {
+            @Override public ObservableList<TreeItem<ShortNameFile>> getChildren() {
                 if (isFirstTimeChildren) {
                     isFirstTimeChildren = false;
 
@@ -73,22 +75,22 @@ public class FileSelectorController {
             @Override public boolean isLeaf() {
                 if (isFirstTimeLeaf) {
                     isFirstTimeLeaf = false;
-                    File f = getValue();
+                    File f = getValue().getFile();
                     isLeaf = f.isFile();
                 }
 
                 return isLeaf;
             }
 
-            private ObservableList<CheckBoxTreeItem<File>> buildChildren(CheckBoxTreeItem<File> treeItem) {
-                File f = treeItem.getValue();
+            private ObservableList<CheckBoxTreeItem<ShortNameFile>> buildChildren(CheckBoxTreeItem<ShortNameFile> treeItem) {
+                File f = treeItem.getValue().getFile();
                 if (f != null && f.isDirectory()) {
                     File[] files = f.listFiles();
                     if (files != null) {
-                        ObservableList<CheckBoxTreeItem<File>> children = FXCollections.observableArrayList();
+                        ObservableList<CheckBoxTreeItem<ShortNameFile>> children = FXCollections.observableArrayList();
 
                         for (File childFile : files) {
-                            children.add(createNode(childFile));
+                            children.add(createNode(new ShortNameFile(childFile)));
                         }
 
                         return children;
@@ -105,7 +107,7 @@ public class FileSelectorController {
     private void handleDirectorySelectButton() {
         String root = rootLocation.getText();
         buildFileSystemBrowser(root);
-        treeView.setCellFactory(CheckBoxTreeCell.<File>forTreeView());
+        treeView.setCellFactory(CheckBoxTreeCell.<ShortNameFile>forTreeView());
 
         /*
 
