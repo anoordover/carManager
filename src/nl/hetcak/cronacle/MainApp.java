@@ -5,7 +5,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import nl.hetcak.cronacle.view.CarActionsController;
 import nl.hetcak.cronacle.view.FileSelectorController;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.io.IOException;
  * Created by anoordover on 5-11-15.
  */
 public class MainApp extends Application {
+    private FileSelectorController fileSelectorController;
     private Stage primaryStage;
     private BorderPane rootLayout;
 
@@ -25,6 +28,21 @@ public class MainApp extends Application {
         initRootLayout();
 
         showFileSelector();
+
+        showCarActions();
+    }
+
+    private void showCarActions() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(MainApp.class.getResource("view/CarActions.fxml"));
+            VBox vBox = fxmlLoader.load();
+            rootLayout.setCenter(vBox);
+            CarActionsController carActionsController = fxmlLoader.getController();
+            carActionsController.setMainApp(this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showFileSelector() {
@@ -34,9 +52,8 @@ public class MainApp extends Application {
             AnchorPane anchorPane = fxmlLoader.load();
 
             rootLayout.setLeft(anchorPane);
-            FileSelectorController controler = fxmlLoader.getController();
-            controler.setMainApp(this);
-
+            fileSelectorController = fxmlLoader.getController();
+            fileSelectorController.setMainApp(this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -57,5 +74,13 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
+    public FileSelectorController getFileSelectorController() {
+        return fileSelectorController;
     }
 }

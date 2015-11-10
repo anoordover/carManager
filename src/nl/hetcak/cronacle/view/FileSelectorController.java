@@ -8,7 +8,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.stage.DirectoryChooser;
 import nl.hetcak.cronacle.MainApp;
+import nl.hetcak.cronacle.model.Configuration;
 import nl.hetcak.cronacle.model.ShortNameFile;
 
 import java.io.File;
@@ -18,6 +20,7 @@ import java.io.File;
  */
 public class FileSelectorController {
 
+    private final DirectoryChooser directoryChooser = new DirectoryChooser();
     @FXML
     private Label rootLocation;
 
@@ -28,7 +31,6 @@ public class FileSelectorController {
 
     @FXML
     private void initialize() {
-        rootLocation.setText("/home/anoordover");
     }
 
 
@@ -105,32 +107,20 @@ public class FileSelectorController {
 
     @FXML
     private void handleDirectorySelectButton() {
-        String root = rootLocation.getText();
-        buildFileSystemBrowser(root);
-        treeView.setCellFactory(CheckBoxTreeCell.<ShortNameFile>forTreeView());
-
-        /*
-
-        CheckBoxTreeItem<String> jonathanGiles = new CheckBoxTreeItem<>("Jonathan");
-        CheckBoxTreeItem<String> juliaGiles = new CheckBoxTreeItem<>("Julia");
-        CheckBoxTreeItem<String> mattGiles = new CheckBoxTreeItem<>("Matt");
-        CheckBoxTreeItem<String> sueGiles = new CheckBoxTreeItem<>("Sue");
-        CheckBoxTreeItem<String> ianGiles = new CheckBoxTreeItem<>("Ian");
-
-        CheckBoxTreeItem<String> gilesFamily = new CheckBoxTreeItem<>("Giles Family");
-        gilesFamily.setExpanded(true);
-        gilesFamily.getChildren().addAll(jonathanGiles, juliaGiles, mattGiles, sueGiles, ianGiles
-        );
-
-        // create the treeView
-        treeView.setRoot(gilesFamily);
-
-        // set the cell factory
-        treeView.setCellFactory(CheckBoxTreeCell.<String>forTreeView());
-         */
+        File file = directoryChooser.showDialog(mainApp.getPrimaryStage());
+        if (file != null) {
+            rootLocation.setText(file.getPath());
+            Configuration.getInstance().setRootLocation(file.getPath());
+            buildFileSystemBrowser(file.getPath());
+            treeView.setCellFactory(CheckBoxTreeCell.<ShortNameFile>forTreeView());
+        }
     }
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
+    }
+
+    public TreeView<ShortNameFile> getTreeView() {
+        return treeView;
     }
 }
