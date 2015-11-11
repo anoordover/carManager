@@ -7,9 +7,10 @@ public class Configuration {
     private static final Configuration INSTANCE = new Configuration();
 
     private String carsLocation = "car";
-    private String xmlLocation = "definitions";
-    private String loaderLocation = "loader";
-    private String metaInfLocation = "META-INF";
+    private String xmlLocation = "extracted/definitions";
+    private String loaderLocation = "extracted/loader";
+    private String metaInfLocation = "extracted/META-INF";
+    private String rootLocation;
 
     public String getRootLocation() {
         return rootLocation;
@@ -18,8 +19,6 @@ public class Configuration {
     public void setRootLocation(String rootLocation) {
         this.rootLocation = rootLocation;
     }
-
-    private String rootLocation;
 
     private Configuration() {
     }

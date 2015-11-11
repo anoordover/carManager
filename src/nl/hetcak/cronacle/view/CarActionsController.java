@@ -5,8 +5,10 @@ import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import nl.hetcak.cronacle.MainApp;
-import nl.hetcak.cronacle.extraction.Extract;
-import nl.hetcak.cronacle.extraction.ExtractSupportingClasses;
+import nl.hetcak.cronacle.extraction.DefinitionExtractor;
+import nl.hetcak.cronacle.extraction.Extractor;
+import nl.hetcak.cronacle.extraction.MetaInfExtractor;
+import nl.hetcak.cronacle.extraction.SupportingClassesExtractor;
 import nl.hetcak.cronacle.model.ShortNameFile;
 
 import java.io.FileInputStream;
@@ -23,10 +25,12 @@ import java.util.zip.ZipInputStream;
 public class CarActionsController {
 
     private MainApp mainApp;
-    private static final Set<Extract> EXTRACTORS = new HashSet<>();
+    private static final Set<Extractor> EXTRACTORS = new HashSet<>();
 
     static {
-        EXTRACTORS.add(new ExtractSupportingClasses());
+        EXTRACTORS.add(new SupportingClassesExtractor());
+        EXTRACTORS.add(new MetaInfExtractor());
+        EXTRACTORS.add(new DefinitionExtractor());
     }
 
     @FXML
@@ -57,7 +61,7 @@ public class CarActionsController {
     }
 
     private void verwerkItem(CheckBoxTreeItem<ShortNameFile> root) {
-        if (root.getValue().getFile().isFile() && root.isSelected()) {
+        if (root.getValue().getFile().isFile() && root.isSelected() && root.getValue().getFile().getName().endsWith(".car")) {
             ZipInputStream zis = null;
             try {
                 System.out.println("is File");
@@ -66,9 +70,9 @@ public class CarActionsController {
                 while (ze != null) {
                     if (!ze.isDirectory()) {
                         System.out.println(ze.getName());
-                        for (Extract extractor : EXTRACTORS) {
+                        for (Extractor extractor : EXTRACTORS) {
                             if (extractor.canExtract(ze)) {
-                                extractor.extract(ze, zis);
+                                extractor.extract(ze, zis, root.getValue().getFile());
                             }
                         }
                     }
