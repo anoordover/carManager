@@ -62,7 +62,7 @@ public class MainApp extends Application {
     private void initRootLayout() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(MainApp.class.getResource("view/rootLayout.fxml"));
+            fxmlLoader.setLocation(MainApp.class.getResource("./view/rootLayout.fxml"));
             rootLayout = fxmlLoader.load();
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
