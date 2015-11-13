@@ -35,7 +35,7 @@ public class MainApp extends Application {
     private void showCarActions() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(MainApp.class.getResource("view/CarActions.fxml"));
+            fxmlLoader.setLocation(MainApp.class.getResource("/nl/hetcak/cronacle/view/CarActions.fxml"));
             VBox vBox = fxmlLoader.load();
             rootLayout.setCenter(vBox);
             CarActionsController carActionsController = fxmlLoader.getController();
@@ -48,7 +48,7 @@ public class MainApp extends Application {
     private void showFileSelector() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(MainApp.class.getResource("view/FileSelector.fxml"));
+            fxmlLoader.setLocation(MainApp.class.getResource("/nl/hetcak/cronacle/view/FileSelector.fxml"));
             AnchorPane anchorPane = fxmlLoader.load();
 
             rootLayout.setLeft(anchorPane);
@@ -62,7 +62,7 @@ public class MainApp extends Application {
     private void initRootLayout() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(MainApp.class.getResource("./view/rootLayout.fxml"));
+            fxmlLoader.setLocation(MainApp.class.getResource("/nl/hetcak/cronacle/view/rootLayout.fxml"));
             rootLayout = fxmlLoader.load();
             Scene scene = new Scene(rootLayout);
             primaryStage.setScene(scene);
