@@ -93,8 +93,6 @@ public class CarActionsController {
                     }
                     ze = zis.getNextEntry();
                 }
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {

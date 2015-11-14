@@ -33,8 +33,6 @@ public class AbstractExtractor {
                 fos.write(buffer, 0, len);
             }
             fos.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

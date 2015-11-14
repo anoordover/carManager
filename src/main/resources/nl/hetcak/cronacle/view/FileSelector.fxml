@@ -8,17 +8,16 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1" fx:controller="nl.hetcak.cronacle.view.FileSelectorController">
-    <children>
-        <VBox layoutX="20.0" layoutY="27.0" prefHeight="600.0" prefWidth="300.0" spacing="15.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <children>
-                <Button mnemonicParsing="false" onAction="#handleDirectorySelectButton" text="Select root directory" />
-                <Label fx:id="rootLocation" text="Label" />
-                <TreeView fx:id="treeView" prefWidth="300.0" VBox.vgrow="ALWAYS" />
-            </children>
-         <padding>
-            <Insets top="5.0" />
-         </padding>
-        </VBox>
-    </children>
+<AnchorPane prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.40" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="nl.hetcak.cronacle.view.FileSelectorController">
+    <VBox layoutX="20.0" layoutY="27.0" prefHeight="600.0" prefWidth="300.0" spacing="15.0"
+          AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+          AnchorPane.topAnchor="0.0">
+        <padding>
+            <Insets top="5.0"/>
+        </padding>
+        <Button mnemonicParsing="false" onAction="#handleDirectorySelectButton" text="Select root directory"/>
+        <Label fx:id="rootLocation" text="Label"/>
+        <TreeView fx:id="treeView" prefWidth="300.0" VBox.vgrow="ALWAYS"/>
+    </VBox>
 </AnchorPane>
