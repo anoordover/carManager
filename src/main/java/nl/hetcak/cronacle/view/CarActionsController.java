@@ -23,6 +23,7 @@ import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -36,12 +37,12 @@ import java.util.zip.ZipInputStream;
  */
 public class CarActionsController {
 
+    private static final Set<Extractor> EXTRACTORS = new HashSet<>();
     private static final Logger LOGGER = LogManager.getLogger(CarActionsController.class);
-
     @FXML
     private TextArea textArea;
-    private MainApp mainApp;
-    private static final Set<Extractor> EXTRACTORS = new HashSet<>();
+
+    private RootController rootController;
 
     static {
         EXTRACTORS.add(new SupportingClassesExtractor());
@@ -53,7 +54,7 @@ public class CarActionsController {
     private void initialize() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
         final Configuration config = ctx.getConfiguration();
-        Layout layout = PatternLayout.createLayout(PatternLayout.DEFAULT_CONVERSION_PATTERN,config,null,null,true,true,null,null);
+        Layout layout = PatternLayout.createLayout(PatternLayout.DEFAULT_CONVERSION_PATTERN, config, null, null, true, true, null, null);
         Appender appender = TextAreaAppender.createAppender("textAreaAppender", null, layout, textArea);
         appender.start();
         config.addAppender(appender);
@@ -67,42 +68,26 @@ public class CarActionsController {
 
     }
 
-    public void setMainApp(MainApp mainApp) {
-        this.mainApp = mainApp;
-    }
-
     @FXML
     private void uitpakkenSelectedCars() {
-        TreeView<ShortNameFile> tree = mainApp.getFileSelectorController().getTreeView();
-        CheckBoxTreeItem<ShortNameFile> root = (CheckBoxTreeItem<ShortNameFile>) tree.getRoot();
-        if (root != null) {
-            verwerkItem(root);
-            verwerkChildren(root);
+        for (File file : rootController.getSelectedFilesFromFileSelector()) {
+            verwerkFile(file);
         }
     }
 
-    private void verwerkChildren(CheckBoxTreeItem<ShortNameFile> root) {
-        if (root.getValue().getFile().isDirectory()) {
-            for (TreeItem<ShortNameFile> child : root.getChildren()) {
-                verwerkItem((CheckBoxTreeItem<ShortNameFile>) child);
-                verwerkChildren((CheckBoxTreeItem<ShortNameFile>) child);
-            }
-        }
-    }
-
-    private void verwerkItem(CheckBoxTreeItem<ShortNameFile> root) {
-        if (root.getValue().getFile().isFile() && root.isSelected() && root.getValue().getFile().getName().endsWith(".car")) {
+    private void verwerkFile(File file) {
+        if (file.isFile() && file.getName().endsWith(".car")) {
             ZipInputStream zis = null;
             try {
                 LOGGER.info("is File");
-                zis = new ZipInputStream(new FileInputStream(root.getValue().getFile()));
+                zis = new ZipInputStream(new FileInputStream(file));
                 ZipEntry ze = zis.getNextEntry();
                 while (ze != null) {
                     if (!ze.isDirectory()) {
                         LOGGER.info(ze.getName());
                         for (Extractor extractor : EXTRACTORS) {
                             if (extractor.canExtract(ze)) {
-                                extractor.extract(ze, zis, root.getValue().getFile());
+                                extractor.extract(ze, zis, file);
                             }
                         }
                     }
@@ -122,5 +107,9 @@ public class CarActionsController {
                 }
             }
         }
+    }
+
+    public void init(RootController rootController) {
+        this.rootController = rootController;
     }
 }

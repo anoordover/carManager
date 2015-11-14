@@ -8,26 +8,24 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
-import javafx.stage.DirectoryChooser;
-import nl.hetcak.cronacle.MainApp;
 import nl.hetcak.cronacle.model.Configuration;
 import nl.hetcak.cronacle.model.ShortNameFile;
 
 import java.io.File;
+import java.util.Iterator;
 
 /**
  * Created by anoordover on 5-11-15.
  */
 public class FileSelectorController {
 
-    private final DirectoryChooser directoryChooser = new DirectoryChooser();
+    private RootController rootController;
+
     @FXML
     private Label rootLocation;
 
     @FXML
     private TreeView<ShortNameFile> treeView = new TreeView<>();
-
-    private MainApp mainApp;
 
     @FXML
     private void initialize() {
@@ -63,7 +61,8 @@ public class FileSelectorController {
             private boolean isFirstTimeChildren = true;
             private boolean isFirstTimeLeaf = true;
 
-            @Override public ObservableList<TreeItem<ShortNameFile>> getChildren() {
+            @Override
+            public ObservableList<TreeItem<ShortNameFile>> getChildren() {
                 if (isFirstTimeChildren) {
                     isFirstTimeChildren = false;
 
@@ -74,7 +73,8 @@ public class FileSelectorController {
                 return super.getChildren();
             }
 
-            @Override public boolean isLeaf() {
+            @Override
+            public boolean isLeaf() {
                 if (isFirstTimeLeaf) {
                     isFirstTimeLeaf = false;
                     File f = getValue().getFile();
@@ -107,7 +107,7 @@ public class FileSelectorController {
 
     @FXML
     private void handleDirectorySelectButton() {
-        File file = directoryChooser.showDialog(mainApp.getPrimaryStage());
+        File file = rootController.showDirectoryDialog();
         if (file != null) {
             rootLocation.setText(file.getPath());
             Configuration.getInstance().setRootLocation(file.getPath());
@@ -116,11 +116,114 @@ public class FileSelectorController {
         }
     }
 
-    public void setMainApp(MainApp mainApp) {
-        this.mainApp = mainApp;
-    }
-
     public TreeView<ShortNameFile> getTreeView() {
         return treeView;
+    }
+
+    public void init(RootController rootController) {
+        this.rootController = rootController;
+    }
+
+    public Iterable<File> getSelectedFiles() {
+        return new TreeViewFlatterner(treeView);
+    }
+
+    private class TreeViewFlatterner implements Iterable<File> {
+
+        private final TreeView<ShortNameFile> treeView;
+
+        public TreeViewFlatterner(TreeView<ShortNameFile> treeView) {
+            this.treeView = treeView;
+        }
+
+        @Override
+        public Iterator<File> iterator() {
+            return new TreeViewValueIterator(treeView);
+        }
+    }
+
+
+    private class TreeViewIterator implements Iterator<CheckBoxTreeItem<ShortNameFile>> {
+        private final TreeView<ShortNameFile> treeView;
+        private CheckBoxTreeItem<ShortNameFile> currentItem;
+
+
+        public TreeViewIterator(TreeView<ShortNameFile> treeView) {
+            this.treeView = treeView;
+            navigateToFirstItem();
+        }
+
+        private void navigateToFirstItem() {
+            currentItem = (CheckBoxTreeItem<ShortNameFile>) treeView.getRoot();
+            if (currentItem != null && !currentItem.isSelected()) {
+                navigateToNextItem();
+            }
+        }
+
+        private void navigateToNextItem() {
+            CheckBoxTreeItem<ShortNameFile> newCurrentItem = getFirstChild(currentItem);
+            if (newCurrentItem != null) {
+                currentItem = newCurrentItem;
+            } else {
+                newCurrentItem = (CheckBoxTreeItem<ShortNameFile>) currentItem.nextSibling();
+                if (newCurrentItem != null) {
+                    currentItem = newCurrentItem;
+                } else {
+                    currentItem = nextSiblingOfAParent(currentItem);
+                }
+            }
+            if (currentItem != null && !currentItem.isSelected()) {
+                navigateToNextItem();
+            }
+        }
+
+        private CheckBoxTreeItem<ShortNameFile> nextSiblingOfAParent(CheckBoxTreeItem<ShortNameFile> currentItem) {
+            if (currentItem.getParent() == null) {
+                return null;
+            }
+            if (currentItem.getParent().nextSibling() != null) {
+                return (CheckBoxTreeItem<ShortNameFile>) currentItem.getParent().nextSibling();
+            } else {
+                return nextSiblingOfAParent((CheckBoxTreeItem<ShortNameFile>) currentItem.getParent());
+            }
+        }
+
+        @Override
+        public boolean hasNext() {
+            return currentItem != null;
+        }
+
+        @Override
+        public CheckBoxTreeItem<ShortNameFile> next() {
+            CheckBoxTreeItem<ShortNameFile> result = currentItem;
+            navigateToNextItem();
+            return result;
+        }
+
+        private CheckBoxTreeItem<ShortNameFile> getFirstChild(CheckBoxTreeItem<ShortNameFile> item) {
+            if (item.getChildren() == null || item.getChildren().size() == 0) {
+                return null;
+            }
+            return (CheckBoxTreeItem<ShortNameFile>) item.getChildren().get(0);
+        }
+
+    }
+
+    private class TreeViewValueIterator implements Iterator<File> {
+        private final TreeViewIterator iterator;
+
+        public TreeViewValueIterator(TreeView<ShortNameFile> treeView) {
+            iterator = new TreeViewIterator(treeView);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return iterator.hasNext();
+        }
+
+        @Override
+        public File next() {
+            return iterator.next().getValue().getFile();
+        }
     }
 }
